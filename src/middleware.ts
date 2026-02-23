@@ -22,6 +22,13 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get("access_token")?.value;
     const { pathname } = request.nextUrl;
 
+    // Root "/" → redirect based on auth state
+    if (pathname === "/") {
+        return NextResponse.redirect(
+            new URL(token ? "/dashboard" : "/auth/login", request.url),
+        );
+    }
+
     // Protected routes → must be logged in
     const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
     if (isProtected && !token) {
@@ -41,6 +48,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
+        "/",
         "/dashboard/:path*",
         "/profile/:path*",
         "/teams/:path*",

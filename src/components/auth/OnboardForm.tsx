@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { onboard, checkUsername } from "@/lib/api/users";
+import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -16,6 +17,7 @@ export function OnboardForm() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { refreshUser } = useAuthContext();
 
     // Debounced username availability check (like LaunchedEffect with delay)
     useEffect(() => {
@@ -70,6 +72,7 @@ export function OnboardForm() {
                 display_name: displayName || null,
                 bio: bio || null,
             });
+            await refreshUser();
             router.push("/dashboard");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Onboarding failed");

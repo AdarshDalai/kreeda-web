@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/api/auth";
-import { saveSession } from "@/lib/auth/session";
+import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { GoogleSignInButton } from "./GoogleSignInButton";
@@ -15,6 +15,7 @@ export function SignupForm() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { handleAuthSuccess } = useAuthContext();
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -37,7 +38,7 @@ export function SignupForm() {
 
             if (response.session) {
                 // Supabase auto-confirms in some setups → user gets session right away
-                saveSession(response.session);
+                await handleAuthSuccess(response);
                 router.push("/auth/onboard");
             } else {
                 // Email confirmation required → show a success message

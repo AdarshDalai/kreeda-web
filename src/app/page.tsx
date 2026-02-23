@@ -1,29 +1,31 @@
-export default async function Home() {
-  // determine the base URL (fallback to localhost when env var is missing)
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+"use client";
 
-  // 1. Fetch the data with error handling
-  let response;
-  try {
-    response = await fetch(`${baseUrl}/api/healthz`);
-  } catch (err) {
-    console.error("failed to fetch healthz:", err);
-    return <main className="p-8 text-red-500">Unable to contact backend.</main>;
-  }
-  
-  // 2. Check for success
-  if (!response.ok) {
-    return <main className="p-8 text-red-500">Backend is offline!</main>;
-  }
+/**
+ * Root Page — client-side redirect fallback.
+ *
+ * The middleware already handles "/" redirects server-side.
+ * This page acts as a safety net: if the middleware doesn't fire
+ * (e.g. static export), it checks auth state and redirects accordingly.
+ */
 
-  // 3. Parse the JSON (your FastAPI healthz endpoint returns {})
-  const data = await response.json();
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/components/providers/AuthProvider";
+import { Spinner } from "@/components/ui/Spinner";
 
-  // 4. Render the UI using Tailwind CSS (similar to Compose Modifiers!)
+export default function Home() {
+  const { isAuthenticated, loading } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      router.replace(isAuthenticated ? "/dashboard" : "/auth/login");
+    }
+  }, [loading, isAuthenticated, router]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-900 p-8 text-white">
-      <h1 className="text-5xl font-bold text-emerald-400">Kreeda</h1>
-      <p className="mt-4 text-lg text-zinc-400">Backend Status: Online</p>
+    <main className="flex min-h-screen items-center justify-center">
+      <Spinner size="lg" />
     </main>
   );
 }

@@ -3,8 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithPassword } from "@/lib/api/auth";
-import { saveSession } from "@/lib/auth/session";
-import { getMe } from "@/lib/api/users";
+import { useAuthContext } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { GoogleSignInButton } from "./GoogleSignInButton";
@@ -15,6 +14,7 @@ export function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { handleAuthSuccess } = useAuthContext();
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -24,12 +24,12 @@ export function LoginForm() {
         try {
             const response = await signInWithPassword({ email, password });
 
-            if (response.session) {
-                saveSession(response.session);
+            const user = await handleAuthSuccess(response);
+            if (user) {
+                router.push(user.is_onboarded ? "/dashboard" : "/auth/onboard");
+            } else {
+                setError("Failed to load user profile");
             }
-
-            const user = await getMe();
-            router.push(user.is_onboarded ? "/dashboard" : "/auth/onboard");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Login failed");
         } finally {
