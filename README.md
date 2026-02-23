@@ -12,7 +12,7 @@ Kreeda lets players create teams, schedule matches, track live scores ball-by-ba
 | UI | React 19, TypeScript 5 |
 | Styling | Tailwind CSS 4, Material Design 3 tokens |
 | Auth | JWT (access + refresh), Google OAuth 2.0 (PKCE) |
-| Backend | FastAPI + PostgreSQL ([kreeda-backend](https://github.com/AdarshKumarDalai/kreeda-backend)) |
+| Backend | FastAPI + PostgreSQL ([kreeda-backend](https://github.com/AdarshDalai/Kreeda-Backend)) |
 
 ## Getting Started
 
